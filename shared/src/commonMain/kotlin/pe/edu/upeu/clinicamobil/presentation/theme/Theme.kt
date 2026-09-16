@@ -84,5 +84,9 @@ private val DarkColors: ColorScheme = darkColorScheme(
 
 @Composable
 fun ClinicaMobilTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (darkTheme) DarkColors else LightColors, content = content)
+    MaterialTheme(
+        colorScheme = if (darkTheme) DarkColors else LightColors,
+        shapes = ClinicaMobilShapes,
+        content = content
+    )
 }

@@ -1,38 +1,34 @@
 package pe.edu.upeu.clinicamobil
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DrawerValue
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 import pe.edu.upeu.clinicamobil.navigation.DESTINOS
@@ -56,67 +52,53 @@ private val ScreenSaver: Saver<Screen, String> = Saver(
 fun App() = KoinContext {
     var darkTheme by rememberSaveable { mutableStateOf(false) }
     var pantallaActual by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf<Screen>(Screen.Inicio) }
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
 
     ClinicaMobilTheme(darkTheme = darkTheme) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocalHospital,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            "ClinicaMobil",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(start = 12.dp)
-                        )
-                    }
-
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(pantallaActual.titulo) },
+                    actions = {
+                        IconButton(onClick = { darkTheme = !darkTheme }) {
+                            Icon(
+                                imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = "Cambiar tema"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            },
+            bottomBar = {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
                     DESTINOS.forEach { destino ->
-                        NavigationDrawerItem(
-                            label = { Text(destino.screen.titulo) },
-                            icon = { Icon(destino.icono, contentDescription = null) },
+                        NavigationBarItem(
                             selected = pantallaActual == destino.screen,
-                            onClick = {
-                                pantallaActual = destino.screen
-                                scope.launch { drawerState.close() }
-                            },
-                            modifier = Modifier.padding(horizontal = 12.dp)
+                            onClick = { pantallaActual = destino.screen },
+                            icon = { Icon(destino.icono, contentDescription = null) },
+                            label = { Text(destino.screen.titulo) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Modo oscuro", modifier = Modifier.fillMaxWidth().padding(end = 12.dp))
-                        Switch(checked = darkTheme, onCheckedChange = { darkTheme = it })
                     }
                 }
             }
-        ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(pantallaActual.titulo) },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
-                            }
-                        }
-                    )
-                }
-            ) { padding ->
-                Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-                    when (pantallaActual) {
+        ) { padding ->
+            Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+                AnimatedContent(
+                    targetState = pantallaActual,
+                    label = "navegacion",
+                    transitionSpec = { fadeIn() togetherWith fadeOut() }
+                ) { pantalla ->
+                    when (pantalla) {
                         is Screen.Inicio -> InicioScreen(onNavegar = { pantallaActual = it })
                         is Screen.Pacientes -> {
                             val viewModel = koinViewModel<PacienteViewModel>()

@@ -1,5 +1,6 @@
 package pe.edu.upeu.clinicamobil.presentation.medico
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,14 +8,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,10 +41,14 @@ fun MedicoScreen(viewModel: MedicoViewModel, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+        ) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text("Registro de médico", style = MaterialTheme.typography.titleMedium)
 
                 ValidatedTextField(
@@ -65,7 +74,7 @@ fun MedicoScreen(viewModel: MedicoViewModel, modifier: Modifier = Modifier) {
                 Button(
                     onClick = viewModel::registrar,
                     enabled = !uiState.registrando,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
                 ) {
                     Text(if (uiState.registrando) "Registrando…" else "Registrar")
                 }
@@ -76,7 +85,7 @@ fun MedicoScreen(viewModel: MedicoViewModel, modifier: Modifier = Modifier) {
             }
         }
 
-        Column(modifier = Modifier.padding(top = 20.dp)) {
+        Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -84,11 +93,11 @@ fun MedicoScreen(viewModel: MedicoViewModel, modifier: Modifier = Modifier) {
             ) {
                 Text("Cuerpo médico", style = MaterialTheme.typography.titleMedium)
                 conteoDe(uiState.fase)?.let { conteo ->
-                    Text(conteo, style = MaterialTheme.typography.labelLarge)
+                    Text(conteo, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 }
             }
 
-            Column(modifier = Modifier.padding(top = 12.dp)) {
+            Column(modifier = Modifier.padding(top = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 when (val fase = uiState.fase) {
                     is MedicoUiState.FaseListado.Cargando -> {
                         Box(
@@ -143,10 +152,31 @@ private fun formatearConteo(cantidad: Int): String =
 
 @Composable
 private fun MedicoItem(medico: MedicoUi) {
-    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(medico.nombre, style = MaterialTheme.typography.titleSmall)
-            Text(medico.lineaSecundaria, style = MaterialTheme.typography.bodySmall)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = medico.nombre.firstOrNull()?.uppercase() ?: "?",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            Column(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                Text(medico.nombre, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    medico.lineaSecundaria,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

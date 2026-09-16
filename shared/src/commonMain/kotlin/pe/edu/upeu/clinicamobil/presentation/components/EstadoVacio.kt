@@ -1,9 +1,13 @@
 package pe.edu.upeu.clinicamobil.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,15 +33,28 @@ fun EstadoVacio(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Icon(imageVector = icono, contentDescription = null, tint = color)
-        Text(text = titulo, style = MaterialTheme.typography.titleMedium, color = color, textAlign = TextAlign.Center)
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .background(color.copy(alpha = 0.12f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = icono, contentDescription = null, tint = color, modifier = Modifier.size(32.dp))
+        }
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.titleMedium,
+            color = color,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp)
+        )
         Text(text = descripcion, style = MaterialTheme.typography.bodyMedium, color = color, textAlign = TextAlign.Center)
         if (textoAccion != null && onAccion != null) {
-            Button(onClick = onAccion) {
+            Button(onClick = onAccion, modifier = Modifier.padding(top = 8.dp)) {
                 Text(textoAccion)
             }
         }
